@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario - Ingenieria en Sistemas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a3a6e 0%, #0d2b4e 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #0d2b4e;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-link.activo {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .calendario-principal {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .cabecera-calendario {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .mes-actual {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .controles-mes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-mes {
+            background: #f1f5f9;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.3s;
+        }
+
+        .btn-mes:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-hoy {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-hoy:hover {
+            background: #2563eb;
+        }
+
+        .dias-semana {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .dia-semana {
+            text-align: center;
+            padding: 12px;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 14px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .grid-calendario {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .dia-calendario {
+            min-height: 120px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dia-calendario:hover {
+            background: #eef2f6;
+            transform: scale(0.98);
+        }
+
+        .dia-calendario.otro-mes {
+            background: #f1f5f9;
+            opacity: 0.5;
+        }
+
+        .dia-calendario.hoy {
+            background: #eef2ff;
+            border: 2px solid #3b82f6;
+        }
+
+        .numero-dia {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .eventos-dia {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .evento-item {
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .evento-item.tarea-pendiente {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .evento-item.tarea-vencida {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .evento-item.tarea-completada {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .evento-item.evento-propio {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .mas-eventos {
+            font-size: 10px;
+            color: #6c757d;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .modal-dia {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-dia-contenido {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: aparecer 0.3s;
+        }
+
+        .modal-dia-cabecera {
+            padding: 20px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border-radius: 24px 24px 0 0;
+            position: sticky;
+            top: 0;
+        }
+
+        .modal-dia-cabecera h3 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .modal-dia-cabecera p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .cerrar-dia {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            margin-top: -5px;
+        }
+
+        .modal-dia-cuerpo {
+            padding: 20px;
+        }
+
+        .seccion-tareas-dia {
+            margin-bottom: 25px;
+        }
+
+        .seccion-tareas-dia h4 {
+            color: #1e293b;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .tarea-detalle {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+
+        .tarea-detalle:hover {
+            background: #eef2f6;
+        }
+
+        .tarea-detalle.pendiente {
+            border-left-color: #f59e0b;
+        }
+
+        .tarea-detalle.vencida {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .tarea-detalle.completada {
+            border-left-color: #10b981;
+            opacity: 0.7;
+        }
+
+        .tarea-detalle.evento {
+            border-left-color: #3b82f6;
+        }
+
+        .tarea-titulo-detalle {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .tarea-materia-detalle {
+            font-size: 12px;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .tarea-descripcion-detalle {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .tarea-info-detalle {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .tarea-prioridad {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .tarea-prioridad.alta {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .tarea-prioridad.media {
+            background: #fff3e5;
+            color: #f59e0b;
+        }
+
+        .tarea-prioridad.baja {
+            background: #e5f5e5;
+            color: #10b981;
+        }
+
+        .acciones-detalle {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-completar-detalle {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-eliminar-detalle {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .sin-eventos-dia {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .panel-eventos {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .panel-eventos h2 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .filtros-eventos {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn-filtro-evento {
+            padding: 6px 16px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.3s;
+        }
+
+        .btn-filtro-evento:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-filtro-evento.activo {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .lista-eventos {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tarjeta-evento {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 3px solid;
+            transition: all 0.3s;
+        }
+
+        .tarjeta-evento:hover {
+            transform: translateX(5px);
+            background: #eef2f6;
+        }
+
+        .tarjeta-evento.tarea-pendiente {
+            border-left-color: #f59e0b;
+        }
+
+        .tarjeta-evento.tarea-vencida {
+            border-left-color: #dc2626;
+        }
+
+        .tarjeta-evento.tarea-completada {
+            border-left-color: #10b981;
+            opacity: 0.7;
+        }
+
+        .tarjeta-evento.evento-propio {
+            border-left-color: #3b82f6;
+        }
+
+        .evento-titulo {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .evento-fecha {
+            font-size: 11px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .evento-materia {
+            font-size: 11px;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .evento-descripcion {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .acciones-evento {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-completar {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-eliminar {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-agregar {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .btn-agregar:hover {
+            background: #2563eb;
+        }
+
+        .sin-eventos {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            animation: aparecer 0.3s;
+        }
+
+        @keyframes aparecer {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-cabecera {
+            padding: 20px;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-cabecera h3 {
+            font-size: 18px;
+        }
+
+        .cerrar {
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .modal-cuerpo {
+            padding: 20px;
+        }
+
+        .modal-cuerpo input,
+        .modal-cuerpo select,
+        .modal-cuerpo textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .btn-guardar {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1001;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .contenedor {
+                padding: 15px;
+            }
+            .dia-calendario {
+                min-height: 80px;
+            }
+            .evento-item {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <h1>Plataforma Academica - Ingenieria en Sistemas</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="grupos.html" class="nav-link">Grupos</a>
+            <a href="tareas.html" class="nav-link">Tareas</a>
+            <a href="recursos.html" class="nav-link">Recursos</a>
+            <a href="calendario.html" class="nav-link activo">Calendario</a>
+        </div>
+    </div>
+
+    <div class="contenedor">
+        <div class="calendario-principal">
+            <div class="cabecera-calendario">
+                <div class="mes-actual" id="mesActual">Marzo 2025</div>
+                <div class="controles-mes">
+                    <button class="btn-mes" onclick="cambiarMes(-1)">Anterior</button>
+                    <button class="btn-mes btn-hoy" onclick="irAHoy()">Hoy</button>
+                    <button class="btn-mes" onclick="cambiarMes(1)">Siguiente</button>
+                </div>
+            </div>
+            <div class="dias-semana">
+                <div class="dia-semana">Domingo</div>
+                <div class="dia-semana">Lunes</div>
+                <div class="dia-semana">Martes</div>
+                <div class="dia-semana">Miercoles</div>
+                <div class="dia-semana">Jueves</div>
+                <div class="dia-semana">Viernes</div>
+                <div class="dia-semana">Sabado</div>
+            </div>
+            <div id="gridCalendario" class="grid-calendario"></div>
+        </div>
+
+        <div class="panel-eventos">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h2>Mis Eventos y Tareas</h2>
+                <button class="btn-agregar" style="width: auto;" onclick="abrirModalAgregarEvento()">Agregar Evento</button>
+            </div>
+            
+            <div class="filtros-eventos">
+                <button class="btn-filtro-evento activo" data-tipo="todos">Todos</button>
+                <button class="btn-filtro-evento" data-tipo="pendientes">Pendientes</button>
+                <button class="btn-filtro-evento" data-tipo="vencidas">Vencidas</button>
+                <button class="btn-filtro-evento" data-tipo="completadas">Completadas</button>
+                <button class="btn-filtro-evento" data-tipo="eventos">Mis Eventos</button>
+            </div>
+
+            <div id="listaEventos" class="lista-eventos"></div>
+        </div>
+    </div>
+
+    <div id="modalDia" class="modal-dia">
+        <div class="modal-dia-contenido">
+            <div class="modal-dia-cabecera">
+                <span class="cerrar-dia" onclick="cerrarModalDia()">&times;</span>
+                <h3 id="diaTitulo">Titulo del Dia</h3>
+                <p id="diaFecha">Fecha</p>
+            </div>
+            <div class="modal-dia-cuerpo" id="modalDiaCuerpo"></div>
+        </div>
+    </div>
+
+    <div id="modalEvento" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-cabecera">
+                <h3>Agregar Evento Personal</h3>
+                <span class="cerrar" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-cuerpo">
+                <input type="text" id="eventoTitulo" placeholder="Titulo del evento" required>
+                <textarea id="eventoDescripcion" rows="3" placeholder="Descripcion del evento"></textarea>
+                <input type="date" id="eventoFecha" required>
+                <input type="time" id="eventoHora" placeholder="Hora (opcional)">
+                <button class="btn-guardar" onclick="agregarEventoPropio()">Guardar Evento</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== OBTENER DATOS DEL LOCALSTORAGE ==========
+        function obtenerMisGrupos() {
+            const grupos = localStorage.getItem('misGruposSistemas');
+            return grupos ? JSON.parse(grupos) : [];
+        }
+
+        function obtenerTareas() {
+            const tareas = localStorage.getItem('tareasPorGrupos');
+            return tareas ? JSON.parse(tareas) : [];
+        }
+
+        // Eventos propios
+        let eventosPropios = JSON.parse(localStorage.getItem('eventosPropios')) || [];
+
+        // Variables de estado
+        let fechaActual = new Date();
+        let añoActual = fechaActual.getFullYear();
+        let mesActual = fechaActual.getMonth();
+        let filtroEventos = "todos";
+
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+        // ========== INICIALIZACION ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarCalendario();
+            mostrarListaEventos();
+            configurarFiltros();
+        });
+
+        // ========== OBTENER EVENTOS POR FECHA ==========
+        function obtenerEventosPorFecha(fecha) {
+            const tareas = obtenerTareas();
+            const misGrupos = obtenerMisGrupos();
+            const idsGruposInscritos = misGrupos.map(g => g.id);
+            
+            const eventos = [];
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            
+            // Filtrar tareas solo de grupos inscritos
+            const tareasFiltradas = tareas.filter(t => idsGruposInscritos.includes(t.materiaId));
+            
+            tareasFiltradas.forEach(tarea => {
+                if (tarea.fechaEntrega === fecha) {
+                    const fechaEntrega = new Date(fecha);
+                    fechaEntrega.setHours(0, 0, 0, 0);
+                    
+                    let tipo = 'tarea-pendiente';
+                    let estado = 'pendiente';
+                    
+                    if (tarea.completada) {
+                        tipo = 'tarea-completada';
+                        estado = 'completada';
+                    } else if (fechaEntrega < hoy) {
+                        tipo = 'tarea-vencida';
+                        estado = 'vencida';
+                    }
+                    
+                    eventos.push({
+                        id: tarea.id,
+                        titulo: tarea.titulo,
+                        descripcion: tarea.descripcion,
+                        tipo: tipo,
+                        esTarea: true,
+                        completada: tarea.completada,
+                        estado: estado,
+                        materia: tarea.materiaNombre,
+                        prioridad: tarea.prioridad,
+                        fechaEntrega: tarea.fechaEntrega
+                    });
+                }
+            });
+            
+            // Agregar eventos propios
+            eventosPropios.forEach(evento => {
+                if (evento.fecha === fecha) {
+                    eventos.push({
+                        id: evento.id,
+                        titulo: evento.titulo,
+                        descripcion: evento.descripcion,
+                        tipo: 'evento-propio',
+                        esTarea: false,
+                        hora: evento.hora
+                    });
+                }
+            });
+            
+            return eventos;
+        }
+
+        // ========== RENDERIZAR CALENDARIO ==========
+        function renderizarCalendario() {
+            const primerDia = new Date(añoActual, mesActual, 1);
+            const ultimoDia = new Date(añoActual, mesActual + 1, 0);
+            const diasEnMes = ultimoDia.getDate();
+            const diaInicio = primerDia.getDay();
+            
+            const primerDiaMesAnterior = new Date(añoActual, mesActual, 0);
+            const diasMesAnterior = primerDiaMesAnterior.getDate();
+            
+            document.getElementById('mesActual').textContent = `${meses[mesActual]} ${añoActual}`;
+            
+            const grid = document.getElementById('gridCalendario');
+            grid.innerHTML = '';
+            
+            const hoy = new Date();
+            const hoyFecha = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+            
+            // Dias del mes anterior
+            for (let i = diaInicio - 1; i >= 0; i--) {
+                const dia = diasMesAnterior - i;
+                const fecha = `${añoActual}-${String(mesActual).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                grid.appendChild(crearCeldaDia(dia, true, fecha, false));
+            }
+            
+            // Dias del mes actual
+            for (let dia = 1; dia <= diasEnMes; dia++) {
+                const fecha = `${añoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                const esHoy = fecha === hoyFecha;
+                grid.appendChild(crearCeldaDia(dia, false, fecha, esHoy));
+            }
+            
+            // Dias del mes siguiente
+            const totalCeldas = grid.children.length;
+            const celdasFaltantes = 42 - totalCeldas;
+            for (let dia = 1; dia <= celdasFaltantes; dia++) {
+                const fecha = `${añoActual}-${String(mesActual + 2).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                grid.appendChild(crearCeldaDia(dia, true, fecha, false));
+            }
+        }
+
+        function crearCeldaDia(numero, esOtroMes, fecha, esHoy) {
+            const div = document.createElement('div');
+            div.className = 'dia-calendario';
+            if (esOtroMes) div.classList.add('otro-mes');
+            if (esHoy) div.classList.add('hoy');
+            
+            div.onclick = () => mostrarDetallesDia(fecha, numero);
+            
+            const numeroSpan = document.createElement('div');
+            numeroSpan.className = 'numero-dia';
+            numeroSpan.textContent = numero;
+            div.appendChild(numeroSpan);
+            
+            const eventosDia = obtenerEventosPorFecha(fecha);
+            
+            if (eventosDia.length > 0) {
+                const eventosContainer = document.createElement('div');
+                eventosContainer.className = 'eventos-dia';
+                
+                const eventosMostrar = eventosDia.slice(0, 3);
+                eventosMostrar.forEach(evento => {
+                    const eventoElement = document.createElement('div');
+                    eventoElement.className = `evento-item ${evento.tipo}`;
+                    eventoElement.textContent = evento.titulo.length > 20 ? evento.titulo.substring(0, 18) + '...' : evento.titulo;
+                    eventoElement.title = evento.titulo;
+                    eventoElement.onclick = (e) => {
+                        e.stopPropagation();
+                        mostrarDetallesDia(fecha, numero);
+                    };
+                    eventosContainer.appendChild(eventoElement);
+                });
+                
+                if (eventosDia.length > 3) {
+                    const masSpan = document.createElement('div');
+                    masSpan.className = 'mas-eventos';
+                    masSpan.textContent = `+${eventosDia.length - 3} mas`;
+                    eventosContainer.appendChild(masSpan);
+                }
+                
+                div.appendChild(eventosContainer);
+            }
+            
+            return div;
+        }
+
+        // ========== MOSTRAR DETALLES DEL DIA ==========
+        function mostrarDetallesDia(fecha, numeroDia) {
+            const eventosDia = obtenerEventosPorFecha(fecha);
+            const misGrupos = obtenerMisGrupos();
+            
+            const partes = fecha.split('-');
+            const fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+            const nombreMes = meses[parseInt(partes[1]) - 1];
+            
+            document.getElementById('diaTitulo').textContent = `Eventos del dia ${numeroDia}`;
+            document.getElementById('diaFecha').textContent = `${nombreMes} ${partes[2]}, ${partes[0]}`;
+            
+            const cuerpo = document.getElementById('modalDiaCuerpo');
+            
+            if (misGrupos.length === 0) {
+                cuerpo.innerHTML = '<div class="sin-eventos-dia">No estas inscrito en ningun grupo. Ve a la seccion Grupos y unite a algunas materias.</div>';
+                document.getElementById('modalDia').style.display = 'flex';
+                return;
+            }
+            
+            if (eventosDia.length === 0) {
+                cuerpo.innerHTML = '<div class="sin-eventos-dia">No hay eventos programados para este dia</div>';
+                document.getElementById('modalDia').style.display = 'flex';
+                return;
+            }
+            
+            const tareasPendientes = eventosDia.filter(e => e.esTarea && !e.completada);
+            const tareasCompletadas = eventosDia.filter(e => e.esTarea && e.completada);
+            const eventos = eventosDia.filter(e => !e.esTarea);
+            
+            let html = '';
+            
+            if (tareasPendientes.length > 0) {
+                html += '<div class="seccion-tareas-dia">';
+                html += '<h4>Tareas Pendientes</h4>';
+                tareasPendientes.forEach(tarea => {
+                    let estadoClass = tarea.estado === 'vencida' ? 'vencida' : 'pendiente';
+                    html += `
+                        <div class="tarea-detalle ${estadoClass}">
+                            <div class="tarea-titulo-detalle">${tarea.titulo}</div>
+                            <div class="tarea-materia-detalle">${tarea.materia || 'Sin materia'}</div>
+                            <div class="tarea-descripcion-detalle">${tarea.descripcion || 'Sin descripcion'}</div>
+                            <div class="tarea-info-detalle">
+                                <span class="tarea-prioridad ${tarea.prioridad || 'media'}">Prioridad: ${(tarea.prioridad || 'media').toUpperCase()}</span>
+                                ${tarea.estado === 'vencida' ? '<span style="color:#dc2626;">Vencida</span>' : ''}
+                            </div>
+                            <div class="acciones-detalle">
+                                <button class="btn-completar-detalle" onclick="completarTareaDesdeModal(${tarea.id})">Marcar Completada</button>
+                                <button class="btn-eliminar-detalle" onclick="eliminarTareaDesdeModal(${tarea.id})">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            if (tareasCompletadas.length > 0) {
+                html += '<div class="seccion-tareas-dia">';
+                html += '<h4>Tareas Completadas</h4>';
+                tareasCompletadas.forEach(tarea => {
+                    html += `
+                        <div class="tarea-detalle completada">
+                            <div class="tarea-titulo-detalle">${tarea.titulo}</div>
+                            <div class="tarea-materia-detalle">${tarea.materia || 'Sin materia'}</div>
+                            <div class="tarea-descripcion-detalle">${tarea.descripcion || 'Sin descripcion'}</div>
+                            <div class="acciones-detalle">
+                                <button class="btn-eliminar-detalle" onclick="eliminarTareaDesdeModal(${tarea.id})">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            if (eventos.length > 0) {
+                html += '<div class="seccion-tareas-dia">';
+                html += '<h4>Eventos Personales</h4>';
+                eventos.forEach(evento => {
+                    html += `
+                        <div class="tarea-detalle evento">
+                            <div class="tarea-titulo-detalle">${evento.titulo}</div>
+                            <div class="tarea-descripcion-detalle">${evento.descripcion || 'Sin descripcion'}</div>
+                            ${evento.hora ? `<div class="tarea-info-detalle">Hora: ${evento.hora}</div>` : ''}
+                            <div class="acciones-detalle">
+                                <button class="btn-eliminar-detalle" onclick="eliminarEventoDesdeModal(${evento.id})">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            cuerpo.innerHTML = html;
+            document.getElementById('modalDia').style.display = 'flex';
+        }
+
+        // ========== MOSTRAR LISTA DE EVENTOS ==========
+        function mostrarListaEventos() {
+            const container = document.getElementById('listaEventos');
+            const misGrupos = obtenerMisGrupos();
+            const tareas = obtenerTareas();
+            const idsGruposInscritos = misGrupos.map(g => g.id);
+            
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            
+            let todosEventos = [];
+            
+            // Filtrar tareas solo de grupos inscritos
+            const tareasFiltradas = tareas.filter(t => idsGruposInscritos.includes(t.materiaId));
+            
+            tareasFiltradas.forEach(tarea => {
+                const fechaEntrega = new Date(tarea.fechaEntrega);
+                fechaEntrega.setHours(0, 0, 0, 0);
+                
+                let estado = 'pendiente';
+                if (tarea.completada) {
+                    estado = 'completada';
+                } else if (fechaEntrega < hoy) {
+                    estado = 'vencida';
+                }
+                
+                todosEventos.push({
+                    id: tarea.id,
+                    titulo: tarea.titulo,
+                    descripcion: tarea.descripcion,
+                    fecha: tarea.fechaEntrega,
+                    tipo: 'tarea',
+                    estado: estado,
+                    materia: tarea.materiaNombre,
+                    prioridad: tarea.prioridad
+                });
+            });
+            
+            eventosPropios.forEach(evento => {
+                todosEventos.push({
+                    id: evento.id,
+                    titulo: evento.titulo,
+                    descripcion: evento.descripcion,
+                    fecha: evento.fecha,
+                    hora: evento.hora,
+                    tipo: 'evento',
+                    estado: 'evento'
+                });
+            });
+            
+            todosEventos.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            
+            if (filtroEventos === 'pendientes') {
+                todosEventos = todosEventos.filter(e => e.tipo === 'tarea' && e.estado === 'pendiente');
+            } else if (filtroEventos === 'vencidas') {
+                todosEventos = todosEventos.filter(e => e.tipo === 'tarea' && e.estado === 'vencida');
+            } else if (filtroEventos === 'completadas') {
+                todosEventos = todosEventos.filter(e => e.tipo === 'tarea' && e.estado === 'completada');
+            } else if (filtroEventos === 'eventos') {
+                todosEventos = todosEventos.filter(e => e.tipo === 'evento');
+            }
+            
+            if (misGrupos.length === 0) {
+                container.innerHTML = '<div class="sin-eventos">No estas inscrito en ningun grupo. Ve a Grupos y unite a materias.</div>';
+                return;
+            }
+            
+            if (todosEventos.length === 0) {
+                container.innerHTML = '<div class="sin-eventos">No hay eventos para mostrar</div>';
+                return;
+            }
+            
+            container.innerHTML = todosEventos.map(evento => {
+                let claseBorde = '';
+                
+                if (evento.tipo === 'tarea') {
+                    if (evento.estado === 'pendiente') claseBorde = 'tarea-pendiente';
+                    else if (evento.estado === 'vencida') claseBorde = 'tarea-vencida';
+                    else claseBorde = 'tarea-completada';
+                } else {
+                    claseBorde = 'evento-propio';
+                }
+                
+                return `
+                    <div class="tarjeta-evento ${claseBorde}">
+                        <div class="evento-titulo">${evento.titulo}</div>
+                        <div class="evento-fecha">${formatearFecha(evento.fecha)} ${evento.hora ? ' - ' + evento.hora : ''}</div>
+                        ${evento.materia ? `<div class="evento-materia">${evento.materia}</div>` : ''}
+                        <div class="evento-descripcion">${evento.descripcion || 'Sin descripcion'}</div>
+                        <div class="acciones-evento">
+                            ${evento.tipo === 'tarea' && evento.estado !== 'completada' ? `<button class="btn-completar" onclick="completarTareaLista(${evento.id})">Completar</button>` : ''}
+                            <button class="btn-eliminar" onclick="eliminarEventoGlobal(${evento.id}, '${evento.tipo}')">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatearFecha(fecha) {
+            const partes = fecha.split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        // ========== ACCIONES ==========
+        function completarTareaDesdeModal(id) {
+            let tareas = obtenerTareas();
+            const tarea = tareas.find(t => t.id === id);
+            if (tarea) {
+                tarea.completada = true;
+                localStorage.setItem('tareasPorGrupos', JSON.stringify(tareas));
+                cerrarModalDia();
+                renderizarCalendario();
+                mostrarListaEventos();
+                mostrarToast(`Tarea completada: ${tarea.titulo}`);
+            }
+        }
+
+        function completarTareaLista(id) {
+            let tareas = obtenerTareas();
+            const tarea = tareas.find(t => t.id === id);
+            if (tarea) {
+                tarea.completada = true;
+                localStorage.setItem('tareasPorGrupos', JSON.stringify(tareas));
+                renderizarCalendario();
+                mostrarListaEventos();
+                mostrarToast(`Tarea completada: ${tarea.titulo}`);
+            }
+        }
+
+        function eliminarTareaDesdeModal(id) {
+            if (confirm('Eliminar esta tarea?')) {
+                let tareas = obtenerTareas();
+                tareas = tareas.filter(t => t.id !== id);
+                localStorage.setItem('tareasPorGrupos', JSON.stringify(tareas));
+                cerrarModalDia();
+                renderizarCalendario();
+                mostrarListaEventos();
+                mostrarToast('Tarea eliminada');
+            }
+        }
+
+        function eliminarEventoDesdeModal(id) {
+            if (confirm('Eliminar este evento?')) {
+                eventosPropios = eventosPropios.filter(e => e.id !== id);
+                localStorage.setItem('eventosPropios', JSON.stringify(eventosPropios));
+                cerrarModalDia();
+                renderizarCalendario();
+                mostrarListaEventos();
+                mostrarToast('Evento eliminado');
+            }
+        }
+
+        function eliminarEventoGlobal(id, tipo) {
+            if (confirm('Eliminar este elemento?')) {
+                if (tipo === 'tarea') {
+                    let tareas = obtenerTareas();
+                    tareas = tareas.filter(t => t.id !== id);
+                    localStorage.setItem('tareasPorGrupos', JSON.stringify(tareas));
+                } else {
+                    eventosPropios = eventosPropios.filter(e => e.id !== id);
+                    localStorage.setItem('eventosPropios', JSON.stringify(eventosPropios));
+                }
+                renderizarCalendario();
+                mostrarListaEventos();
+                mostrarToast('Elemento eliminado');
+            }
+        }
+
+        function agregarEventoPropio() {
+            const titulo = document.getElementById('eventoTitulo').value.trim();
+            const descripcion = document.getElementById('eventoDescripcion').value.trim();
+            const fecha = document.getElementById('eventoFecha').value;
+            const hora = document.getElementById('eventoHora').value;
+            
+            if (!titulo) {
+                mostrarToast('Ingresa un titulo para el evento');
+                return;
+            }
+            
+            if (!fecha) {
+                mostrarToast('Selecciona una fecha');
+                return;
+            }
+            
+            const nuevoEvento = {
+                id: Date.now(),
+                titulo: titulo,
+                descripcion: descripcion || 'Sin descripcion',
+                fecha: fecha,
+                hora: hora || ''
+            };
+            
+            eventosPropios.push(nuevoEvento);
+            localStorage.setItem('eventosPropios', JSON.stringify(eventosPropios));
+            
+            cerrarModal();
+            document.getElementById('eventoTitulo').value = '';
+            document.getElementById('eventoDescripcion').value = '';
+            document.getElementById('eventoFecha').value = '';
+            document.getElementById('eventoHora').value = '';
+            
+            renderizarCalendario();
+            mostrarListaEventos();
+            mostrarToast('Evento agregado');
+        }
+
+        // ========== CONTROLES ==========
+        function cambiarMes(direccion) {
+            const nuevaFecha = new Date(añoActual, mesActual + direccion, 1);
+            añoActual = nuevaFecha.getFullYear();
+            mesActual = nuevaFecha.getMonth();
+            renderizarCalendario();
+        }
+
+        function irAHoy() {
+            const hoy = new Date();
+            añoActual = hoy.getFullYear();
+            mesActual = hoy.getMonth();
+            renderizarCalendario();
+        }
+
+        function configurarFiltros() {
+            document.querySelectorAll('.btn-filtro-evento').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-filtro-evento').forEach(b => b.classList.remove('activo'));
+                    btn.classList.add('activo');
+                    filtroEventos = btn.getAttribute('data-tipo');
+                    mostrarListaEventos();
+                });
+            });
+        }
+
+        // ========== MODALES ==========
+        function cerrarModalDia() {
+            document.getElementById('modalDia').style.display = 'none';
+        }
+
+        function abrirModalAgregarEvento() {
+            document.getElementById('modalEvento').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalEvento').style.display = 'none';
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal-dia')) {
+                cerrarModalDia();
+            }
+            if (event.target.classList.contains('modal')) {
+                cerrarModal();
+            }
+        }
+    </script>
+</body>
+</html>

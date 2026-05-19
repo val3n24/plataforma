@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tareas - Ingenieria en Sistemas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a3a6e 0%, #0d2b4e 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #0d2b4e;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-link.activo {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tarjeta-resumen {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tarjeta-resumen h3 {
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .numero {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .vencidas .numero { color: #dc2626; }
+        .pendientes .numero { color: #f59e0b; }
+        .completadas .numero { color: #10b981; }
+
+        .seccion-tareas {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .seccion-tareas h2 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .seccion-tareas p {
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn-filtro {
+            padding: 8px 20px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: #475569;
+        }
+
+        .btn-filtro:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-filtro.activo {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .filtro-materia {
+            margin-bottom: 25px;
+        }
+
+        .filtro-materia select {
+            padding: 10px 16px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+            background: white;
+        }
+
+        .lista-tareas {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tarjeta-tarea {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+            border-left: 4px solid;
+        }
+
+        .tarjeta-tarea.vencida {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .tarjeta-tarea.pendiente {
+            border-left-color: #f59e0b;
+        }
+
+        .tarjeta-tarea.completada {
+            border-left-color: #10b981;
+            opacity: 0.7;
+        }
+
+        .tarjeta-tarea:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tarea-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tarea-titulo {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .tarea-materia {
+            background: #eef2ff;
+            color: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .tarea-descripcion {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .tarea-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .fecha-entrega {
+            color: #64748b;
+        }
+
+        .fecha-entrega.vencida {
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        .prioridad {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .prioridad.alta {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .prioridad.media {
+            background: #fff3e5;
+            color: #f59e0b;
+        }
+
+        .prioridad.baja {
+            background: #e5f5e5;
+            color: #10b981;
+        }
+
+        .tarea-acciones {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-completar {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-completar:hover {
+            background: #059669;
+        }
+
+        .btn-eliminar {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-eliminar:hover {
+            background: #b91c1c;
+        }
+
+        .btn-agregar {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .btn-agregar:hover {
+            background: #2563eb;
+        }
+
+        .sin-tareas {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            animation: aparecer 0.3s;
+        }
+
+        @keyframes aparecer {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-cabecera {
+            padding: 20px;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-cabecera h3 {
+            font-size: 18px;
+        }
+
+        .cerrar {
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .modal-cuerpo {
+            padding: 20px;
+        }
+
+        .modal-cuerpo input,
+        .modal-cuerpo select,
+        .modal-cuerpo textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .btn-guardar {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1001;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .contenedor {
+                padding: 15px;
+            }
+            .tarea-cabecera {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <h1>Plataforma Academica - Ingenieria en Sistemas</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="grupos.html" class="nav-link">Grupos</a>
+            <a href="tareas.html" class="nav-link activo">Tareas</a>
+            <a href="recursos.html" class="nav-link">Recursos</a>
+            <a href="calendario.html" class="nav-link">Calendario</a>
+        </div>
+    </div>
+
+    <div class="contenedor">
+        <div class="resumen-grid">
+            <div class="tarjeta-resumen vencidas">
+                <h3>Tareas Vencidas</h3>
+                <div class="numero" id="contadorVencidas">0</div>
+            </div>
+            <div class="tarjeta-resumen pendientes">
+                <h3>Tareas por Entregar</h3>
+                <div class="numero" id="contadorPendientes">0</div>
+            </div>
+            <div class="tarjeta-resumen completadas">
+                <h3>Tareas Completadas</h3>
+                <div class="numero" id="contadorCompletadas">0</div>
+            </div>
+        </div>
+
+        <div class="seccion-tareas">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h2>Mis Tareas</h2>
+                <button class="btn-agregar" onclick="abrirModalAgregar()">Agregar Tarea</button>
+            </div>
+            <p>Tareas de las materias a las que te has unido</p>
+
+            <div class="filtro-materia">
+                <select id="filtroMateria">
+                    <option value="todas">Todas las materias</option>
+                </select>
+            </div>
+
+            <div class="filtros">
+                <button class="btn-filtro activo" data-filtro="todas">Todas</button>
+                <button class="btn-filtro" data-filtro="pendientes">Por Entregar</button>
+                <button class="btn-filtro" data-filtro="vencidas">Vencidas</button>
+                <button class="btn-filtro" data-filtro="completadas">Completadas</button>
+            </div>
+
+            <div id="listaTareas" class="lista-tareas"></div>
+        </div>
+    </div>
+
+    <div id="modalTarea" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-cabecera">
+                <h3>Agregar Nueva Tarea</h3>
+                <span class="cerrar" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-cuerpo">
+                <input type="text" id="tareaTitulo" placeholder="Titulo de la tarea" required>
+                <textarea id="tareaDescripcion" rows="3" placeholder="Descripcion de la tarea"></textarea>
+                <select id="tareaMateriaId" required>
+                    <option value="">Seleccionar materia</option>
+                </select>
+                <input type="date" id="tareaFecha" required>
+                <select id="tareaPrioridad">
+                    <option value="baja">Baja</option>
+                    <option value="media" selected>Media</option>
+                    <option value="alta">Alta</option>
+                </select>
+                <button class="btn-guardar" onclick="agregarTarea()">Guardar Tarea</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATOS DE TODAS LAS MATERIAS ==========
+        const catalogoMaterias = [
+            { id: 1, nombre: "Introduccion a la Ingenieria", semestre: 1, tipo: "programacion" },
+            { id: 2, nombre: "Calculo Diferencial", semestre: 1, tipo: "matematicas" },
+            { id: 3, nombre: "Algebra Lineal", semestre: 1, tipo: "matematicas" },
+            { id: 4, nombre: "Fisica General", semestre: 1, tipo: "ciencias" },
+            { id: 5, nombre: "Programacion Basica", semestre: 2, tipo: "programacion" },
+            { id: 6, nombre: "Calculo Integral", semestre: 2, tipo: "matematicas" },
+            { id: 7, nombre: "Fisica de Campos", semestre: 2, tipo: "ciencias" },
+            { id: 8, nombre: "Matematicas Discretas", semestre: 2, tipo: "matematicas" },
+            { id: 9, nombre: "Estructura de Datos", semestre: 3, tipo: "programacion" },
+            { id: 10, nombre: "Ecuaciones Diferenciales", semestre: 3, tipo: "matematicas" },
+            { id: 11, nombre: "Arquitectura de Computadores", semestre: 3, tipo: "programacion" },
+            { id: 12, nombre: "Probabilidad y Estadistica", semestre: 3, tipo: "matematicas" },
+            { id: 13, nombre: "Base de Datos", semestre: 4, tipo: "programacion" },
+            { id: 14, nombre: "Sistemas Operativos", semestre: 4, tipo: "programacion" },
+            { id: 15, nombre: "Redes de Computadoras", semestre: 4, tipo: "programacion" },
+            { id: 16, nombre: "Metodos Numericos", semestre: 4, tipo: "matematicas" },
+            { id: 17, nombre: "Ingenieria de Software", semestre: 5, tipo: "programacion" },
+            { id: 18, nombre: "Lenguajes de Programacion", semestre: 5, tipo: "programacion" },
+            { id: 19, nombre: "Analisis de Algoritmos", semestre: 5, tipo: "programacion" },
+            { id: 20, nombre: "Desarrollo Web", semestre: 5, tipo: "programacion" },
+            { id: 21, nombre: "Inteligencia Artificial", semestre: 6, tipo: "programacion" },
+            { id: 22, nombre: "Calidad de Software", semestre: 6, tipo: "programacion" },
+            { id: 23, nombre: "Interfaces de Usuario", semestre: 6, tipo: "programacion" },
+            { id: 24, nombre: "Investigacion de Operaciones", semestre: 6, tipo: "matematicas" },
+            { id: 25, nombre: "Gestion de Proyectos", semestre: 7, tipo: "gestion" },
+            { id: 26, nombre: "Seguridad Informatica", semestre: 7, tipo: "programacion" },
+            { id: 27, nombre: "Computacion Grafica", semestre: 7, tipo: "programacion" },
+            { id: 28, nombre: "Desarrollo Movil", semestre: 7, tipo: "programacion" },
+            { id: 29, nombre: "Proyecto de Grado", semestre: 8, tipo: "gestion" },
+            { id: 30, nombre: "Emprendimiento Tecnologico", semestre: 8, tipo: "gestion" },
+            { id: 31, nombre: "Big Data", semestre: 8, tipo: "programacion" },
+            { id: 32, nombre: "Cloud Computing", semestre: 8, tipo: "programacion" }
+        ];
+
+        // Plantillas de tareas por tipo
+        const plantillasTareas = {
+            programacion: [
+                { titulo: "Proyecto integrador", descripcion: "Desarrollar el proyecto completo de la materia", prioridad: "alta" },
+                { titulo: "Laboratorio semanal", descripcion: "Completar el laboratorio de la semana y subir evidencias", prioridad: "media" },
+                { titulo: "Ejercicios de programacion", descripcion: "Resolver los ejercicios practicos asignados", prioridad: "media" },
+                { titulo: "Cuestionario en linea", descripcion: "Responder el cuestionario de la unidad", prioridad: "baja" },
+                { titulo: "Entrega de avance", descripcion: "Presentar avance del proyecto parcial", prioridad: "alta" },
+                { titulo: "Revision de codigo", descripcion: "Revisar y documentar el codigo fuente", prioridad: "media" }
+            ],
+            matematicas: [
+                { titulo: "Serie de ejercicios", descripcion: "Resolver la serie completa de ejercicios", prioridad: "media" },
+                { titulo: "Examen parcial", descripcion: "Prepararse para el examen parcial", prioridad: "alta" },
+                { titulo: "Problemas aplicados", descripcion: "Resolver problemas de aplicacion real", prioridad: "media" },
+                { titulo: "Investigacion teorica", descripcion: "Investigar y resumir tema asignado", prioridad: "baja" },
+                { titulo: "Taller grupal", descripcion: "Participar en taller grupal", prioridad: "media" },
+                { titulo: "Demostraciones", descripcion: "Realizar demostraciones de teoremas", prioridad: "alta" }
+            ],
+            ciencias: [
+                { titulo: "Informe de laboratorio", descripcion: "Realizar informe del laboratorio practico", prioridad: "alta" },
+                { titulo: "Cuestionario teorico", descripcion: "Responder cuestionario de teoria", prioridad: "media" },
+                { titulo: "Proyecto experimental", descripcion: "Desarrollar proyecto experimental", prioridad: "alta" },
+                { titulo: "Analisis de datos", descripcion: "Analizar datos experimentales", prioridad: "media" },
+                { titulo: "Presentacion oral", descripcion: "Preparar presentacion del tema", prioridad: "media" }
+            ],
+            gestion: [
+                { titulo: "Documento de proyecto", descripcion: "Elaborar documentacion del proyecto", prioridad: "alta" },
+                { titulo: "Cronograma de actividades", descripcion: "Crear cronograma detallado", prioridad: "media" },
+                { titulo: "Analisis de casos", descripcion: "Resolver casos de estudio", prioridad: "media" },
+                { titulo: "Plan de trabajo", descripcion: "Desarrollar plan de trabajo", prioridad: "alta" },
+                { titulo: "Informe ejecutivo", descripcion: "Elaborar informe ejecutivo", prioridad: "media" }
+            ]
+        };
+
+        // Funcion para generar fecha aleatoria
+        function generarFechaAleatoria() {
+            const hoy = new Date();
+            const diasOffset = Math.floor(Math.random() * 36) - 15;
+            const fecha = new Date();
+            fecha.setDate(hoy.getDate() + diasOffset);
+            return fecha.toISOString().split('T')[0];
+        }
+
+        // Generar tareas SOLO para las materias inscritas
+        function generarTareasParaMisGrupos(gruposInscritos) {
+            let nuevasTareas = [];
+            let idActual = 1;
+            
+            gruposInscritos.forEach(grupo => {
+                const materiaInfo = catalogoMaterias.find(m => m.id === grupo.id);
+                const tipo = materiaInfo ? materiaInfo.tipo : "programacion";
+                const plantillas = plantillasTareas[tipo] || plantillasTareas.programacion;
+                
+                // Cada materia tiene 4 tareas
+                for (let i = 0; i < 4; i++) {
+                    const plantilla = plantillas[i % plantillas.length];
+                    const fechaEntrega = generarFechaAleatoria();
+                    const completada = Math.random() < 0.2;
+                    
+                    nuevasTareas.push({
+                        id: idActual++,
+                        titulo: plantilla.titulo,
+                        descripcion: plantilla.descripcion,
+                        materiaId: grupo.id,
+                        materiaNombre: grupo.nombre,
+                        semestre: grupo.semestre || materiaInfo?.semestre || 1,
+                        fechaEntrega: fechaEntrega,
+                        prioridad: plantilla.prioridad,
+                        completada: completada
+                    });
+                }
+            });
+            
+            return nuevasTareas;
+        }
+
+        // Obtener grupos inscritos del localStorage
+        function obtenerMisGrupos() {
+            const grupos = localStorage.getItem('misGruposSistemas');
+            if (grupos) {
+                return JSON.parse(grupos);
+            }
+            // Si no hay grupos, devolver array vacio
+            return [];
+        }
+
+        // Variables globales
+        let tareas = [];
+        let misGrupos = [];
+        let filtroEstado = "todas";
+        let filtroMateriaId = "todas";
+
+        // ========== INICIALIZACION ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarDatos();
+            actualizarSelectMaterias();
+            actualizarResumen();
+            mostrarTareas();
+            configurarFiltros();
+        });
+
+        function cargarDatos() {
+            misGrupos = obtenerMisGrupos();
+            
+            // Cargar tareas guardadas o generar nuevas
+            const tareasGuardadas = localStorage.getItem('tareasPorGrupos');
+            const gruposGuardados = localStorage.getItem('gruposParaTareas');
+            
+            if (tareasGuardadas && gruposGuardados && gruposGuardados === JSON.stringify(misGrupos.map(g => g.id))) {
+                tareas = JSON.parse(tareasGuardadas);
+            } else {
+                tareas = generarTareasParaMisGrupos(misGrupos);
+                localStorage.setItem('tareasPorGrupos', JSON.stringify(tareas));
+                localStorage.setItem('gruposParaTareas', JSON.stringify(misGrupos.map(g => g.id)));
+            }
+        }
+
+        function guardarTareas() {
+            localStorage.setItem('tareasPorGrupos', JSON.stringify(tareas));
+        }
+
+        function actualizarSelectMaterias() {
+            const select = document.getElementById('tareaMateriaId');
+            if (select) {
+                select.innerHTML = '<option value="">Seleccionar materia</option>';
+                misGrupos.forEach(materia => {
+                    select.innerHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
+                });
+            }
+            
+            const filtroSelect = document.getElementById('filtroMateria');
+            if (filtroSelect) {
+                filtroSelect.innerHTML = '<option value="todas">Todas las materias</option>';
+                misGrupos.forEach(materia => {
+                    filtroSelect.innerHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
+                });
+            }
+        }
+
+        function actualizarResumen() {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            
+            const vencidas = tareas.filter(t => {
+                if (t.completada) return false;
+                const fechaEntrega = new Date(t.fechaEntrega);
+                fechaEntrega.setHours(0, 0, 0, 0);
+                return fechaEntrega < hoy;
+            }).length;
+            
+            const pendientes = tareas.filter(t => {
+                if (t.completada) return false;
+                const fechaEntrega = new Date(t.fechaEntrega);
+                fechaEntrega.setHours(0, 0, 0, 0);
+                return fechaEntrega >= hoy;
+            }).length;
+            
+            const completadas = tareas.filter(t => t.completada).length;
+            
+            document.getElementById('contadorVencidas').textContent = vencidas;
+            document.getElementById('contadorPendientes').textContent = pendientes;
+            document.getElementById('contadorCompletadas').textContent = completadas;
+        }
+
+        function mostrarTareas() {
+            const container = document.getElementById('listaTareas');
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            
+            if (misGrupos.length === 0) {
+                container.innerHTML = '<div class="sin-tareas">No estas inscrito en ningun grupo. Ve a la seccion Grupos y unite a algunas materias para ver tus tareas.</div>';
+                return;
+            }
+            
+            let tareasFiltradas = [...tareas];
+            
+            if (filtroMateriaId !== "todas") {
+                tareasFiltradas = tareasFiltradas.filter(t => t.materiaId === parseInt(filtroMateriaId));
+            }
+            
+            if (filtroEstado === "pendientes") {
+                tareasFiltradas = tareasFiltradas.filter(t => {
+                    if (t.completada) return false;
+                    const fechaEntrega = new Date(t.fechaEntrega);
+                    fechaEntrega.setHours(0, 0, 0, 0);
+                    return fechaEntrega >= hoy;
+                });
+            } else if (filtroEstado === "vencidas") {
+                tareasFiltradas = tareasFiltradas.filter(t => {
+                    if (t.completada) return false;
+                    const fechaEntrega = new Date(t.fechaEntrega);
+                    fechaEntrega.setHours(0, 0, 0, 0);
+                    return fechaEntrega < hoy;
+                });
+            } else if (filtroEstado === "completadas") {
+                tareasFiltradas = tareasFiltradas.filter(t => t.completada);
+            }
+            
+            tareasFiltradas.sort((a, b) => {
+                if (a.completada !== b.completada) return a.completada ? 1 : -1;
+                if (!a.completada && !b.completada) {
+                    return new Date(a.fechaEntrega) - new Date(b.fechaEntrega);
+                }
+                return 0;
+            });
+            
+            if (tareasFiltradas.length === 0) {
+                container.innerHTML = '<div class="sin-tareas">No hay tareas para mostrar</div>';
+                return;
+            }
+            
+            container.innerHTML = tareasFiltradas.map(tarea => {
+                const fechaEntrega = new Date(tarea.fechaEntrega);
+                fechaEntrega.setHours(0, 0, 0, 0);
+                const estaVencida = !tarea.completada && fechaEntrega < hoy;
+                const estado = tarea.completada ? 'completada' : (estaVencida ? 'vencida' : 'pendiente');
+                
+                let prioridadTexto = '';
+                if (tarea.prioridad === 'alta') prioridadTexto = 'Alta';
+                else if (tarea.prioridad === 'media') prioridadTexto = 'Media';
+                else prioridadTexto = 'Baja';
+                
+                return `
+                    <div class="tarjeta-tarea ${estado}">
+                        <div class="tarea-cabecera">
+                            <span class="tarea-titulo">${tarea.titulo}</span>
+                            <span class="tarea-materia">${tarea.materiaNombre}</span>
+                        </div>
+                        <div class="tarea-descripcion">${tarea.descripcion}</div>
+                        <div class="tarea-info">
+                            <span class="fecha-entrega ${estaVencida ? 'vencida' : ''}">Fecha entrega: ${formatearFecha(tarea.fechaEntrega)}</span>
+                            <span class="prioridad ${tarea.prioridad}">${prioridadTexto}</span>
+                        </div>
+                        <div class="tarea-acciones">
+                            ${!tarea.completada ? `<button class="btn-completar" onclick="completarTarea(${tarea.id})">Marcar Completada</button>` : ''}
+                            <button class="btn-eliminar" onclick="eliminarTarea(${tarea.id})">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatearFecha(fecha) {
+            const partes = fecha.split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        function completarTarea(id) {
+            const tarea = tareas.find(t => t.id === id);
+            if (tarea) {
+                tarea.completada = true;
+                guardarTareas();
+                actualizarResumen();
+                mostrarTareas();
+                mostrarToast(`Tarea "${tarea.titulo}" completada`);
+            }
+        }
+
+        function eliminarTarea(id) {
+            if (confirm('Eliminar esta tarea?')) {
+                tareas = tareas.filter(t => t.id !== id);
+                guardarTareas();
+                actualizarResumen();
+                mostrarTareas();
+                mostrarToast('Tarea eliminada');
+            }
+        }
+
+        function agregarTarea() {
+            const titulo = document.getElementById('tareaTitulo').value.trim();
+            const descripcion = document.getElementById('tareaDescripcion').value.trim();
+            const materiaId = parseInt(document.getElementById('tareaMateriaId').value);
+            const fechaEntrega = document.getElementById('tareaFecha').value;
+            const prioridad = document.getElementById('tareaPrioridad').value;
+            
+            if (!titulo) {
+                mostrarToast('Ingresa un titulo para la tarea');
+                return;
+            }
+            
+            if (!materiaId) {
+                mostrarToast('Selecciona una materia');
+                return;
+            }
+            
+            if (!fechaEntrega) {
+                mostrarToast('Selecciona una fecha de entrega');
+                return;
+            }
+            
+            const materia = misGrupos.find(m => m.id === materiaId);
+            
+            const nuevaTarea = {
+                id: Date.now(),
+                titulo: titulo,
+                descripcion: descripcion || 'Sin descripcion',
+                materiaId: materiaId,
+                materiaNombre: materia ? materia.nombre : 'Materia',
+                semestre: materia ? materia.semestre : 1,
+                fechaEntrega: fechaEntrega,
+                prioridad: prioridad,
+                completada: false
+            };
+            
+            tareas.push(nuevaTarea);
+            guardarTareas();
+            cerrarModal();
+            
+            document.getElementById('tareaTitulo').value = '';
+            document.getElementById('tareaDescripcion').value = '';
+            document.getElementById('tareaFecha').value = '';
+            
+            actualizarResumen();
+            mostrarTareas();
+            mostrarToast('Tarea agregada correctamente');
+        }
+
+        function configurarFiltros() {
+            document.querySelectorAll('.btn-filtro').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('activo'));
+                    btn.classList.add('activo');
+                    filtroEstado = btn.getAttribute('data-filtro');
+                    mostrarTareas();
+                });
+            });
+            
+            const filtroMateriaSelect = document.getElementById('filtroMateria');
+            if (filtroMateriaSelect) {
+                filtroMateriaSelect.addEventListener('change', (e) => {
+                    filtroMateriaId = e.target.value;
+                    mostrarTareas();
+                });
+            }
+        }
+
+        function abrirModalAgregar() {
+            if (misGrupos.length === 0) {
+                mostrarToast('Primero unite a algunos grupos en la seccion Grupos');
+                return;
+            }
+            actualizarSelectMaterias();
+            document.getElementById('modalTarea').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalTarea').style.display = 'none';
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                cerrarModal();
+            }
+        }
+    </script>
+</body>
+</html>
