@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupos - Ingenieria en Sistemas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2b4d 0%, #0a1f3a 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(10, 31, 58, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(37, 99, 235, 0.3);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.activo {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .mis-grupos {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .mis-grupos h2 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .mis-grupos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .mi-grupo-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .mi-grupo-card:hover {
+            transform: translateX(5px);
+            border-color: #2563eb;
+        }
+
+        .mi-grupo-info h4 {
+            color: #1e293b;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .mi-grupo-info p {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .btn-salir {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-salir:hover {
+            background: #b91c1c;
+        }
+
+        .seccion-grupos {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .seccion-grupos h2 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .seccion-grupos p {
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .filtros-semestre {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn-semestre {
+            padding: 8px 20px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #475569;
+        }
+
+        .btn-semestre:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-semestre.activo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .filtros-tipo {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn-filtro {
+            padding: 8px 20px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #475569;
+        }
+
+        .btn-filtro:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-filtro.activo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .buscador {
+            margin-bottom: 25px;
+        }
+
+        .buscador input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 16px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .buscador input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .grid-grupos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .tarjeta-grupo {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tarjeta-grupo:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -8px rgba(0,0,0,0.15);
+            border-color: #2563eb;
+        }
+
+        .tarjeta-grupo h3 {
+            color: #1e293b;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .tarjeta-grupo p {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .info-grupo {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .semestre {
+            background: #eef2ff;
+            color: #2563eb;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+
+        .tipo {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+
+        .miembros {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+
+        .btn-unirse {
+            width: 100%;
+            padding: 10px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-unirse:hover {
+            background: #1e40af;
+        }
+
+        .btn-unirse.unido {
+            background: #10b981;
+        }
+
+        .btn-unirse.unido:hover {
+            background: #059669;
+        }
+
+        .sin-resultados {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1001;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .contenedor {
+                padding: 15px;
+            }
+            .grid-grupos {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <h1>Plataforma Academica</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="grupos.html" class="nav-link activo">Grupos</a>
+            <a href="tareas.html" class="nav-link">Tareas</a>
+            <a href="recursos.html" class="nav-link">Recursos</a>
+            <a href="calendario.html" class="nav-link">Calendario</a>
+            <a href="horario.html" class="nav-link">Horario</a>
+        </div>
+    </div>
+
+    <div class="contenedor">
+        <div class="mis-grupos">
+            <h2>Mis Grupos</h2>
+            <div id="misGruposGrid" class="mis-grupos-grid"></div>
+        </div>
+
+        <div class="seccion-grupos">
+            <h2>Grupos Disponibles</h2>
+            <p>Grupos de estudio organizados por semestre de la carrera de Ingenieria en Sistemas</p>
+
+            <div class="buscador">
+                <input type="text" id="buscador" placeholder="Buscar grupo por nombre...">
+            </div>
+
+            <div class="filtros-semestre">
+                <button class="btn-semestre activo" data-semestre="todos">Todos los Semestres</button>
+                <button class="btn-semestre" data-semestre="1">Primer Semestre</button>
+                <button class="btn-semestre" data-semestre="2">Segundo Semestre</button>
+                <button class="btn-semestre" data-semestre="3">Tercer Semestre</button>
+                <button class="btn-semestre" data-semestre="4">Cuarto Semestre</button>
+                <button class="btn-semestre" data-semestre="5">Quinto Semestre</button>
+                <button class="btn-semestre" data-semestre="6">Sexto Semestre</button>
+                <button class="btn-semestre" data-semestre="7">Septimo Semestre</button>
+                <button class="btn-semestre" data-semestre="8">Octavo Semestre</button>
+            </div>
+
+            <div class="filtros-tipo">
+                <button class="btn-filtro activo" data-tipo="todos">Todos</button>
+                <button class="btn-filtro" data-tipo="programacion">Programacion</button>
+                <button class="btn-filtro" data-tipo="matematicas">Matematicas</button>
+                <button class="btn-filtro" data-tipo="ciencias">Ciencias Basicas</button>
+                <button class="btn-filtro" data-tipo="gestion">Gestion</button>
+            </div>
+
+            <div id="gridGrupos" class="grid-grupos"></div>
+        </div>
+    </div>
+
+    <script>
+        const gruposDisponibles = [
+            { id: 1, nombre: "Introduccion a la Ingenieria", semestre: 1, tipo: "programacion", descripcion: "Fundamentos de la ingenieria en sistemas", miembros: 45 },
+            { id: 2, nombre: "Calculo Diferencial", semestre: 1, tipo: "matematicas", descripcion: "Limites, derivadas y aplicaciones", miembros: 52 },
+            { id: 3, nombre: "Algebra Lineal", semestre: 1, tipo: "matematicas", descripcion: "Matrices, vectores y transformaciones", miembros: 48 },
+            { id: 4, nombre: "Fisica General", semestre: 1, tipo: "ciencias", descripcion: "Mecanica clasica y leyes de Newton", miembros: 44 },
+            { id: 5, nombre: "Programacion Basica", semestre: 2, tipo: "programacion", descripcion: "Fundamentos de programacion", miembros: 56 },
+            { id: 6, nombre: "Calculo Integral", semestre: 2, tipo: "matematicas", descripcion: "Integrales y tecnicas de integracion", miembros: 41 },
+            { id: 7, nombre: "Fisica de Campos", semestre: 2, tipo: "ciencias", descripcion: "Electricidad y magnetismo", miembros: 38 },
+            { id: 8, nombre: "Matematicas Discretas", semestre: 2, tipo: "matematicas", descripcion: "Logica, conjuntos y grafos", miembros: 43 },
+            { id: 9, nombre: "Estructura de Datos", semestre: 3, tipo: "programacion", descripcion: "Arreglos, listas, pilas y colas", miembros: 49 },
+            { id: 10, nombre: "Ecuaciones Diferenciales", semestre: 3, tipo: "matematicas", descripcion: "Ecuaciones diferenciales ordinarias", miembros: 35 },
+            { id: 11, nombre: "Arquitectura de Computadores", semestre: 3, tipo: "programacion", descripcion: "Estructura de computadoras", miembros: 42 },
+            { id: 12, nombre: "Probabilidad y Estadistica", semestre: 3, tipo: "matematicas", descripcion: "Probabilidad y analisis estadistico", miembros: 47 },
+            { id: 13, nombre: "Base de Datos", semestre: 4, tipo: "programacion", descripcion: "SQL y modelo relacional", miembros: 53 },
+            { id: 14, nombre: "Sistemas Operativos", semestre: 4, tipo: "programacion", descripcion: "Gestion de procesos y memoria", miembros: 46 },
+            { id: 15, nombre: "Redes de Computadoras", semestre: 4, tipo: "programacion", descripcion: "Protocolos y TCP/IP", miembros: 44 },
+            { id: 16, nombre: "Metodos Numericos", semestre: 4, tipo: "matematicas", descripcion: "Metodos numericos para solucion de problemas", miembros: 39 },
+            { id: 17, nombre: "Ingenieria de Software", semestre: 5, tipo: "programacion", descripcion: "Metodologias agiles y desarrollo", miembros: 58 },
+            { id: 18, nombre: "Lenguajes de Programacion", semestre: 5, tipo: "programacion", descripcion: "Paradigmas de programacion", miembros: 51 },
+            { id: 19, nombre: "Analisis de Algoritmos", semestre: 5, tipo: "programacion", descripcion: "Complejidad algoritmica", miembros: 43 },
+            { id: 20, nombre: "Desarrollo Web", semestre: 5, tipo: "programacion", descripcion: "HTML, CSS y JavaScript", miembros: 62 },
+            { id: 21, nombre: "Inteligencia Artificial", semestre: 6, tipo: "programacion", descripcion: "Redes neuronales y aprendizaje", miembros: 54 },
+            { id: 22, nombre: "Calidad de Software", semestre: 6, tipo: "programacion", descripcion: "Pruebas y aseguramiento de calidad", miembros: 41 },
+            { id: 23, nombre: "Interfaces de Usuario", semestre: 6, tipo: "programacion", descripcion: "Diseño UX/UI", miembros: 47 },
+            { id: 24, nombre: "Investigacion de Operaciones", semestre: 6, tipo: "matematicas", descripcion: "Optimizacion y programacion lineal", miembros: 38 },
+            { id: 25, nombre: "Gestion de Proyectos", semestre: 7, tipo: "gestion", descripcion: "Planificacion y control de proyectos", miembros: 49 },
+            { id: 26, nombre: "Seguridad Informatica", semestre: 7, tipo: "programacion", descripcion: "Ciberseguridad y proteccion de datos", miembros: 52 },
+            { id: 27, nombre: "Computacion Grafica", semestre: 7, tipo: "programacion", descripcion: "Graficos 2D y 3D", miembros: 40 },
+            { id: 28, nombre: "Desarrollo Movil", semestre: 7, tipo: "programacion", descripcion: "Aplicaciones para Android e iOS", miembros: 55 },
+            { id: 29, nombre: "Proyecto de Grado", semestre: 8, tipo: "gestion", descripcion: "Desarrollo de tesis", miembros: 67 },
+            { id: 30, nombre: "Emprendimiento Tecnologico", semestre: 8, tipo: "gestion", descripcion: "Creacion de empresas tecnologicas", miembros: 44 },
+            { id: 31, nombre: "Big Data", semestre: 8, tipo: "programacion", descripcion: "Analisis de grandes volumenes de datos", miembros: 48 },
+            { id: 32, nombre: "Cloud Computing", semestre: 8, tipo: "programacion", descripcion: "Servicios en la nube", miembros: 46 }
+        ];
+
+        let misGrupos = JSON.parse(localStorage.getItem('misGruposSistemas')) || [];
+        let semestreActivo = "todos";
+        let tipoActivo = "todos";
+        let textoBusqueda = "";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mostrarGrupos();
+            mostrarMisGrupos();
+            configurarFiltros();
+            configurarBuscador();
+        });
+
+        function mostrarGrupos() {
+            const grid = document.getElementById('gridGrupos');
+            let gruposFiltrados = [...gruposDisponibles];
+            
+            if (semestreActivo !== "todos") {
+                gruposFiltrados = gruposFiltrados.filter(g => g.semestre === parseInt(semestreActivo));
+            }
+            
+            if (tipoActivo !== "todos") {
+                gruposFiltrados = gruposFiltrados.filter(g => g.tipo === tipoActivo);
+            }
+            
+            if (textoBusqueda.trim() !== "") {
+                gruposFiltrados = gruposFiltrados.filter(g => 
+                    g.nombre.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
+                    g.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase())
+                );
+            }
+            
+            if (gruposFiltrados.length === 0) {
+                grid.innerHTML = '<div class="sin-resultados">No se encontraron grupos</div>';
+                return;
+            }
+            
+            grid.innerHTML = gruposFiltrados.map(grupo => {
+                const yaUnido = misGrupos.some(mg => mg.id === grupo.id);
+                return `
+                    <div class="tarjeta-grupo">
+                        <h3>${grupo.nombre}</h3>
+                        <p>${grupo.descripcion}</p>
+                        <div class="info-grupo">
+                            <span class="semestre">Semestre ${grupo.semestre}</span>
+                            <span class="tipo">${getNombreTipo(grupo.tipo)}</span>
+                            <span class="miembros">Miembros: ${grupo.miembros}</span>
+                        </div>
+                        <button class="btn-unirse ${yaUnido ? 'unido' : ''}" onclick="unirseGrupo(${grupo.id})">
+                            ${yaUnido ? 'Unido' : 'Unirse al Grupo'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function mostrarMisGrupos() {
+            const container = document.getElementById('misGruposGrid');
+            
+            if (misGrupos.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:#6c757d; grid-column:1/-1;">No estas inscrito en ningun grupo</div>';
+                return;
+            }
+            
+            container.innerHTML = misGrupos.map(grupo => `
+                <div class="mi-grupo-card">
+                    <div class="mi-grupo-info">
+                        <h4>${grupo.nombre}</h4>
+                        <p>Semestre ${grupo.semestre} - ${getNombreTipo(grupo.tipo)}</p>
+                    </div>
+                    <button class="btn-salir" onclick="salirGrupo(${grupo.id})">Salir</button>
+                </div>
+            `).join('');
+        }
+
+        function unirseGrupo(id) {
+            const grupo = gruposDisponibles.find(g => g.id === id);
+            if (!grupo) return;
+            
+            const yaUnido = misGrupos.some(mg => mg.id === id);
+            if (yaUnido) {
+                mostrarToast("Ya estas en este grupo");
+                return;
+            }
+            
+            misGrupos.push({ ...grupo });
+            localStorage.setItem('misGruposSistemas', JSON.stringify(misGrupos));
+            
+            grupo.miembros++;
+            
+            mostrarToast(`Te has unido a ${grupo.nombre}`);
+            mostrarGrupos();
+            mostrarMisGrupos();
+        }
+
+        function salirGrupo(id) {
+            const grupo = misGrupos.find(g => g.id === id);
+            if (!grupo) return;
+            
+            if (confirm(`Salir del grupo "${grupo.nombre}"?`)) {
+                misGrupos = misGrupos.filter(g => g.id !== id);
+                localStorage.setItem('misGruposSistemas', JSON.stringify(misGrupos));
+                
+                const grupoOriginal = gruposDisponibles.find(g => g.id === id);
+                if (grupoOriginal && grupoOriginal.miembros > 0) {
+                    grupoOriginal.miembros--;
+                }
+                
+                mostrarToast(`Has salido del grupo ${grupo.nombre}`);
+                mostrarGrupos();
+                mostrarMisGrupos();
+            }
+        }
+
+        function configurarFiltros() {
+            document.querySelectorAll('.btn-semestre').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-semestre').forEach(b => b.classList.remove('activo'));
+                    btn.classList.add('activo');
+                    semestreActivo = btn.getAttribute('data-semestre');
+                    mostrarGrupos();
+                });
+            });
+            
+            document.querySelectorAll('.btn-filtro').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('activo'));
+                    btn.classList.add('activo');
+                    tipoActivo = btn.getAttribute('data-tipo');
+                    mostrarGrupos();
+                });
+            });
+        }
+
+        function configurarBuscador() {
+            const buscador = document.getElementById('buscador');
+            buscador.addEventListener('input', (e) => {
+                textoBusqueda = e.target.value;
+                mostrarGrupos();
+            });
+        }
+
+        function getNombreTipo(tipo) {
+            const tipos = {
+                'programacion': 'Programacion',
+                'matematicas': 'Matematicas',
+                'ciencias': 'Ciencias Basicas',
+                'gestion': 'Gestion'
+            };
+            return tipos[tipo] || tipo;
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario Academico - Ingenieria en Sistemas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2b4d 0%, #0a1f3a 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(10, 31, 58, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(37, 99, 235, 0.3);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.activo {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Selector de turno */
+        .turno-selector {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .turno-actual {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .turno-badge {
+            background: #2563eb;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .btn-cambiar {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cambiar:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .info-turno {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .mensaje-sin-grupos {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+            padding: 18px 24px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .mensaje-sin-grupos p {
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mensaje-sin-grupos a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .tabla-horario {
+            background: #ffffff;
+            border-radius: 24px;
+            overflow-x: auto;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .tabla-horario table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        .tabla-horario th {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 16px 12px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .tabla-horario td {
+            padding: 14px 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+            background: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .tabla-horario tr:hover td {
+            background: #f8fafc;
+        }
+
+        .hora-columna {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+            width: 80px;
+        }
+
+        .celda-materia {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .celda-materia:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 10;
+        }
+
+        .materia-nombre {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .materia-profesor {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .materia-aula {
+            font-size: 11px;
+            color: #2563eb;
+            margin-top: 4px;
+        }
+
+        .sin-clase {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .leyenda {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .leyenda h3 {
+            color: #1e293b;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .leyenda-items {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .leyenda-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .color-muestra {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .color-muestra.programacion { background: #2563eb; }
+        .color-muestra.matematicas { background: #10b981; }
+        .color-muestra.ciencias { background: #f59e0b; }
+        .color-muestra.gestion { background: #8b5cf6; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 480px;
+            animation: fadeInUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modal-cabecera {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .modal-cabecera h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .modal-cabecera p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .modal-cuerpo {
+            padding: 25px;
+        }
+
+        .info-materia {
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-materia label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .info-materia .valor {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-cerrar {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cerrar:hover {
+            background: #1e40af;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .contenedor {
+                padding: 15px;
+            }
+            .turno-selector {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <h1>Plataforma Academica</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="grupos.html" class="nav-link">Grupos</a>
+            <a href="tareas.html" class="nav-link">Tareas</a>
+            <a href="recursos.html" class="nav-link">Recursos</a>
+            <a href="calendario.html" class="nav-link">Calendario</a>
+            <a href="horario.html" class="nav-link activo">Horario</a>
+        </div>
+    </div>
+
+    <div class="contenedor">
+        <!-- Selector de Turno -->
+        <div class="turno-selector">
+            <div class="turno-actual">
+                <div class="turno-badge" id="turnoBadge">Diurno</div>
+                <button class="btn-cambiar" id="btnCambiarTurno">Cambiar a Nocturno</button>
+            </div>
+            <div class="info-turno" id="infoTurno">Horario Diurno - Clases de 7:00 a 17:00</div>
+        </div>
+
+        <div id="mensajeSinGrupos" class="mensaje-sin-grupos" style="display: none;">
+            <p>No estas inscrito en ningun grupo. Para ver tu horario, ve a la seccion <a href="grupos.html">Grupos</a> y unite a algunas materias.</p>
+        </div>
+
+        <div id="tablaHorario" class="tabla-horario"></div>
+
+        <div class="leyenda">
+            <h3>Referencias</h3>
+            <div class="leyenda-items">
+                <div class="leyenda-item">
+                    <div class="color-muestra programacion"></div>
+                    <span>Programacion</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="color-muestra matematicas"></div>
+                    <span>Matematicas</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="color-muestra ciencias"></div>
+                    <span>Ciencias Basicas</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="color-muestra gestion"></div>
+                    <span>Gestion</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de detalles -->
+    <div id="modalMateria" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-cabecera">
+                <h2 id="modalTitulo">Materia</h2>
+                <p id="modalHorario">Horario</p>
+            </div>
+            <div class="modal-cuerpo" id="modalCuerpo"></div>
+            <div class="modal-footer">
+                <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let turnoActual = "diurno"; // diurno o nocturno
+
+        function obtenerMisGrupos() {
+            const grupos = localStorage.getItem('misGruposSistemas');
+            return grupos ? JSON.parse(grupos) : [];
+        }
+
+        function getColorByType(tipo) {
+            const colores = {
+                'programacion': '#2563eb',
+                'matematicas': '#10b981',
+                'ciencias': '#f59e0b',
+                'gestion': '#8b5cf6'
+            };
+            return colores[tipo] || '#64748b';
+        }
+
+        function getProfesorByMateria(nombre) {
+            const profesores = {
+                'Calculo Diferencial': 'Dr. Juan Martinez',
+                'Calculo Integral': 'Dr. Juan Martinez',
+                'Algebra Lineal': 'Dra. Ana Garcia',
+                'Ecuaciones Diferenciales': 'Dr. Carlos Ruiz',
+                'Matematicas Discretas': 'Dra. Laura Torres',
+                'Probabilidad y Estadistica': 'Dr. Pedro Sanchez',
+                'Metodos Numericos': 'Dra. Sofia Ramirez',
+                'Fisica General': 'Dr. Roberto Gomez',
+                'Fisica de Campos': 'Dr. Roberto Gomez',
+                'Programacion Basica': 'Ing. Miguel Castro',
+                'Estructura de Datos': 'Ing. Miguel Castro',
+                'Base de Datos': 'Ing. Lucia Mendez',
+                'Sistemas Operativos': 'Ing. Andres Flores',
+                'Redes de Computadoras': 'Ing. Carolina Diaz',
+                'Ingenieria de Software': 'Ing. Jose Mendoza',
+                'Inteligencia Artificial': 'Dr. Alberto Vega',
+                'Desarrollo Web': 'Ing. Patricia Lima',
+                'Gestion de Proyectos': 'MBA. Eduardo Rios'
+            };
+            return profesores[nombre] || 'Dr. Carlos Perez';
+        }
+
+        function getAulaByMateria(nombre) {
+            const aulas = {
+                'Calculo Diferencial': 'Aula 101',
+                'Calculo Integral': 'Aula 101',
+                'Algebra Lineal': 'Aula 102',
+                'Ecuaciones Diferenciales': 'Aula 103',
+                'Programacion Basica': 'Laboratorio 201',
+                'Estructura de Datos': 'Laboratorio 202',
+                'Base de Datos': 'Laboratorio 203',
+                'Sistemas Operativos': 'Laboratorio 204',
+                'Redes de Computadoras': 'Laboratorio 205',
+                'Ingenieria de Software': 'Laboratorio 206',
+                'Inteligencia Artificial': 'Laboratorio 207'
+            };
+            return aulas[nombre] || 'Aula 100';
+        }
+
+        function getCreditosByMateria(nombre) {
+            const creditos = {
+                'Calculo Diferencial': 4,
+                'Calculo Integral': 4,
+                'Algebra Lineal': 3,
+                'Ecuaciones Diferenciales': 4,
+                'Programacion Basica': 4,
+                'Estructura de Datos': 4,
+                'Base de Datos': 4,
+                'Sistemas Operativos': 4,
+                'Redes de Computadoras': 4,
+                'Ingenieria de Software': 4,
+                'Inteligencia Artificial': 4
+            };
+            return creditos[nombre] || 3;
+        }
+
+        function generarHorarioDiurno(misGrupos) {
+            const horario = {
+                'Lunes': {},
+                'Martes': {},
+                'Miercoles': {},
+                'Jueves': {},
+                'Viernes': {}
+            };
+            
+            const horas = ['7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+            
+            const tiposDias = {
+                'programacion': ['Lunes', 'Miercoles', 'Viernes'],
+                'matematicas': ['Martes', 'Jueves'],
+                'ciencias': ['Lunes', 'Jueves'],
+                'gestion': ['Martes', 'Viernes']
+            };
+            
+            const horasPorTipo = {
+                'programacion': ['9:00', '11:00', '14:00', '16:00'],
+                'matematicas': ['8:00', '10:00', '13:00', '15:00'],
+                'ciencias': ['7:00', '12:00', '14:00', '17:00'],
+                'gestion': ['10:00', '13:00', '15:00']
+            };
+            
+            misGrupos.forEach((grupo, index) => {
+                const tipo = grupo.tipo || 'programacion';
+                const dias = tiposDias[tipo] || ['Lunes', 'Miercoles', 'Viernes'];
+                const horasDisponibles = horasPorTipo[tipo] || ['9:00', '11:00', '14:00'];
+                
+                dias.forEach((dia, i) => {
+                    const hora = horasDisponibles[i % horasDisponibles.length];
+                    if (hora && !horario[dia][hora]) {
+                        horario[dia][hora] = {
+                            nombre: grupo.nombre,
+                            profesor: getProfesorByMateria(grupo.nombre),
+                            aula: getAulaByMateria(grupo.nombre),
+                            tipo: tipo,
+                            creditos: getCreditosByMateria(grupo.nombre),
+                            semestre: grupo.semestre || 1,
+                            horaInicio: hora,
+                            horaFin: (parseInt(hora) + 2) + ':00'
+                        };
+                    }
+                });
+            });
+            
+            return { horario, horas };
+        }
+
+        function generarHorarioNocturno(misGrupos) {
+            const horario = {
+                'Lunes': {},
+                'Martes': {},
+                'Miercoles': {},
+                'Jueves': {},
+                'Viernes': {}
+            };
+            
+            const horas = ['18:00', '19:00', '20:00', '21:00', '22:00'];
+            
+            const tiposDias = {
+                'programacion': ['Lunes', 'Miercoles', 'Viernes'],
+                'matematicas': ['Martes', 'Jueves'],
+                'ciencias': ['Lunes', 'Jueves'],
+                'gestion': ['Martes', 'Viernes']
+            };
+            
+            const horasPorTipo = {
+                'programacion': ['18:00', '20:00', '22:00'],
+                'matematicas': ['19:00', '21:00'],
+                'ciencias': ['18:00', '20:00'],
+                'gestion': ['19:00', '21:00']
+            };
+            
+            misGrupos.forEach((grupo, index) => {
+                const tipo = grupo.tipo || 'programacion';
+                const dias = tiposDias[tipo] || ['Lunes', 'Miercoles', 'Viernes'];
+                const horasDisponibles = horasPorTipo[tipo] || ['18:00', '20:00', '22:00'];
+                
+                dias.forEach((dia, i) => {
+                    const hora = horasDisponibles[i % horasDisponibles.length];
+                    if (hora && !horario[dia][hora]) {
+                        horario[dia][hora] = {
+                            nombre: grupo.nombre,
+                            profesor: getProfesorByMateria(grupo.nombre),
+                            aula: getAulaByMateria(grupo.nombre),
+                            tipo: tipo,
+                            creditos: getCreditosByMateria(grupo.nombre),
+                            semestre: grupo.semestre || 1,
+                            horaInicio: hora,
+                            horaFin: (parseInt(hora) + 2) + ':00'
+                        };
+                    }
+                });
+            });
+            
+            return { horario, horas };
+        }
+
+        function renderizarHorario() {
+            const misGrupos = obtenerMisGrupos();
+            const mensajeDiv = document.getElementById('mensajeSinGrupos');
+            const container = document.getElementById('tablaHorario');
+            
+            if (misGrupos.length === 0) {
+                mensajeDiv.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+            
+            mensajeDiv.style.display = 'none';
+            
+            let horarioData, horas;
+            if (turnoActual === 'diurno') {
+                const data = generarHorarioDiurno(misGrupos);
+                horarioData = data.horario;
+                horas = data.horas;
+            } else {
+                const data = generarHorarioNocturno(misGrupos);
+                horarioData = data.horario;
+                horas = data.horas;
+            }
+            
+            const dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Lunes</th>
+                            <th>Martes</th>
+                            <th>Miercoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            horas.forEach(hora => {
+                html += `<tr>
+                    <td class="hora-columna">${hora}</td>`;
+                
+                dias.forEach(dia => {
+                    const clase = horarioData[dia][hora];
+                    if (clase) {
+                        const color = getColorByType(clase.tipo);
+                        html += `
+                            <td class="celda-materia" style="background: ${color}10; border-left: 3px solid ${color};" onclick='mostrarDetalleMateria(${JSON.stringify(clase)})'>
+                                <div class="materia-nombre">${clase.nombre}</div>
+                                <div class="materia-profesor">${clase.profesor}</div>
+                                <div class="materia-aula">${clase.aula}</div>
+                            </td>
+                        `;
+                    } else {
+                        html += `<td><div class="sin-clase">-</div></td>`;
+                    }
+                });
+                
+                html += `</tr>`;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function mostrarDetalleMateria(clase) {
+            const tipoNombre = {
+                'programacion': 'Programacion',
+                'matematicas': 'Matematicas',
+                'ciencias': 'Ciencias Basicas',
+                'gestion': 'Gestion'
+            };
+            
+            document.getElementById('modalTitulo').textContent = clase.nombre;
+            document.getElementById('modalHorario').textContent = `${clase.horaInicio} a ${clase.horaFin}`;
+            
+            const cuerpo = document.getElementById('modalCuerpo');
+            cuerpo.innerHTML = `
+                <div class="info-materia">
+                    <label>Profesor</label>
+                    <div class="valor">${clase.profesor}</div>
+                </div>
+                <div class="info-materia">
+                    <label>Aula</label>
+                    <div class="valor">${clase.aula}</div>
+                </div>
+                <div class="info-materia">
+                    <label>Tipo</label>
+                    <div class="valor">${tipoNombre[clase.tipo] || clase.tipo}</div>
+                </div>
+                <div class="info-materia">
+                    <label>Creditos</label>
+                    <div class="valor">${clase.creditos} creditos</div>
+                </div>
+                <div class="info-materia">
+                    <label>Semestre</label>
+                    <div class="valor">${clase.semestre}° Semestre</div>
+                </div>
+                <div class="info-materia">
+                    <label>Duracion</label>
+                    <div class="valor">2 horas</div>
+                </div>
+            `;
+            
+            document.getElementById('modalMateria').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalMateria').style.display = 'none';
+        }
+
+        function cambiarTurno() {
+            if (turnoActual === 'diurno') {
+                turnoActual = 'nocturno';
+                document.getElementById('turnoBadge').textContent = 'Nocturno';
+                document.getElementById('btnCambiarTurno').textContent = 'Cambiar a Diurno';
+                document.getElementById('infoTurno').textContent = 'Horario Nocturno - Clases de 18:00 a 22:00';
+            } else {
+                turnoActual = 'diurno';
+                document.getElementById('turnoBadge').textContent = 'Diurno';
+                document.getElementById('btnCambiarTurno').textContent = 'Cambiar a Nocturno';
+                document.getElementById('infoTurno').textContent = 'Horario Diurno - Clases de 7:00 a 17:00';
+            }
+            renderizarHorario();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarHorario();
+            document.getElementById('btnCambiarTurno').addEventListener('click', cambiarTurno);
+        });
+
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                cerrarModal();
+            }
+        }
+    </script>
+</body>
+</html>

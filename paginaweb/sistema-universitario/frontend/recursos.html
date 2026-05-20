@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos - Ingenieria en Sistemas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2b4d 0%, #0a1f3a 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(10, 31, 58, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(37, 99, 235, 0.3);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.activo {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .seccion-recursos {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .seccion-recursos h2 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .seccion-recursos p {
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .filtro-materia {
+            margin-bottom: 20px;
+        }
+
+        .filtro-materia select {
+            padding: 10px 16px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filtros-tipo {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn-filtro-tipo {
+            padding: 6px 16px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.3s ease;
+        }
+
+        .btn-filtro-tipo:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-filtro-tipo.activo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .buscador {
+            margin-bottom: 25px;
+        }
+
+        .buscador input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 16px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .buscador input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn-agregar {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-agregar:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        .grid-recursos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tarjeta-recurso {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tarjeta-recurso:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px -8px rgba(0,0,0,0.15);
+            border-color: #2563eb;
+        }
+
+        .recurso-tipo {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .recurso-tipo.documento { background: #e0e7ff; color: #4338ca; }
+        .recurso-tipo.video { background: #fee2e2; color: #dc2626; }
+        .recurso-tipo.enlace { background: #d1fae5; color: #059669; }
+        .recurso-tipo.herramienta { background: #fef3c7; color: #d97706; }
+        .recurso-tipo.libro { background: #e0e7ff; color: #4338ca; }
+        .recurso-tipo.examen { background: #fce7f3; color: #db2777; }
+        .recurso-tipo.codigo { background: #e5e5e5; color: #1e293b; }
+
+        .recurso-titulo {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .recurso-descripcion {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .recurso-materia {
+            font-size: 12px;
+            color: #2563eb;
+            margin-bottom: 12px;
+        }
+
+        .recurso-enlace {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .recurso-enlace:hover {
+            background: #1e40af;
+        }
+
+        .acciones-recurso {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-eliminar-recurso {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-eliminar-recurso:hover {
+            background: #b91c1c;
+        }
+
+        .sin-recursos {
+            text-align: center;
+            padding: 60px;
+            color: #6c757d;
+            background: #f8fafc;
+            border-radius: 16px;
+        }
+
+        .sin-recursos p {
+            margin-top: 10px;
+        }
+
+        .mensaje-sin-grupos {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+            padding: 18px 24px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .mensaje-sin-grupos p {
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mensaje-sin-grupos a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-cabecera {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            border-radius: 24px 24px 0 0;
+            position: sticky;
+            top: 0;
+        }
+
+        .modal-cabecera h3 {
+            font-size: 18px;
+        }
+
+        .cerrar {
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .modal-cuerpo {
+            padding: 20px;
+        }
+
+        .modal-cuerpo input,
+        .modal-cuerpo select,
+        .modal-cuerpo textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #d0d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .modal-cuerpo label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 13px;
+        }
+
+        .btn-guardar {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-guardar:hover {
+            background: #1e40af;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1001;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+            }
+            .contenedor {
+                padding: 15px;
+            }
+            .grid-recursos {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <h1>Plataforma Academica</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="grupos.html" class="nav-link">Grupos</a>
+            <a href="tareas.html" class="nav-link">Tareas</a>
+            <a href="recursos.html" class="nav-link activo">Recursos</a>
+            <a href="calendario.html" class="nav-link">Calendario</a>
+            <a href="horario.html" class="nav-link">Horario</a>
+        </div>
+    </div>
+
+    <div class="contenedor">
+        <div class="seccion-recursos">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h2>Recursos de Aprendizaje</h2>
+                <button class="btn-agregar" onclick="abrirModalAgregar()">Agregar Recurso</button>
+            </div>
+            <p>Materiales de apoyo, guias, videos y enlaces utiles para tus materias</p>
+
+            <div class="filtro-materia">
+                <select id="filtroMateria">
+                    <option value="todas">Todas las materias</option>
+                </select>
+            </div>
+
+            <div class="filtros-tipo">
+                <button class="btn-filtro-tipo activo" data-tipo="todos">Todos</button>
+                <button class="btn-filtro-tipo" data-tipo="documento">Documentos</button>
+                <button class="btn-filtro-tipo" data-tipo="video">Videos</button>
+                <button class="btn-filtro-tipo" data-tipo="enlace">Enlaces</button>
+                <button class="btn-filtro-tipo" data-tipo="herramienta">Herramientas</button>
+                <button class="btn-filtro-tipo" data-tipo="libro">Libros</button>
+                <button class="btn-filtro-tipo" data-tipo="examen">Examenes</button>
+                <button class="btn-filtro-tipo" data-tipo="codigo">Codigo</button>
+            </div>
+
+            <div class="buscador">
+                <input type="text" id="buscador" placeholder="Buscar recurso por titulo o descripcion...">
+            </div>
+
+            <div id="listaRecursos" class="grid-recursos"></div>
+        </div>
+    </div>
+
+    <div id="modalRecurso" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-cabecera">
+                <h3>Agregar Nuevo Recurso</h3>
+                <span class="cerrar" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-cuerpo">
+                <label>Titulo del recurso</label>
+                <input type="text" id="recursoTitulo" placeholder="Ej: Guia de Python" required>
+                
+                <label>Descripcion</label>
+                <textarea id="recursoDescripcion" rows="3" placeholder="Breve descripcion del contenido"></textarea>
+                
+                <label>Materia</label>
+                <select id="recursoMateriaId" required>
+                    <option value="">Seleccionar materia</option>
+                </select>
+                
+                <label>Tipo de recurso</label>
+                <select id="recursoTipo">
+                    <option value="documento">Documento</option>
+                    <option value="video">Video</option>
+                    <option value="enlace">Enlace</option>
+                    <option value="herramienta">Herramienta</option>
+                    <option value="libro">Libro</option>
+                    <option value="examen">Examen</option>
+                    <option value="codigo">Codigo</option>
+                </select>
+                
+                <label>Enlace (URL)</label>
+                <input type="url" id="recursoUrl" placeholder="https://ejemplo.com/recurso">
+                
+                <button class="btn-guardar" onclick="agregarRecurso()">Guardar Recurso</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CATALOGO DE MATERIAS ==========
+        const catalogoMaterias = [
+            { id: 1, nombre: "Introduccion a la Ingenieria", semestre: 1, tipo: "programacion" },
+            { id: 2, nombre: "Calculo Diferencial", semestre: 1, tipo: "matematicas" },
+            { id: 3, nombre: "Algebra Lineal", semestre: 1, tipo: "matematicas" },
+            { id: 4, nombre: "Fisica General", semestre: 1, tipo: "ciencias" },
+            { id: 5, nombre: "Programacion Basica", semestre: 2, tipo: "programacion" },
+            { id: 6, nombre: "Calculo Integral", semestre: 2, tipo: "matematicas" },
+            { id: 7, nombre: "Fisica de Campos", semestre: 2, tipo: "ciencias" },
+            { id: 8, nombre: "Matematicas Discretas", semestre: 2, tipo: "matematicas" },
+            { id: 9, nombre: "Estructura de Datos", semestre: 3, tipo: "programacion" },
+            { id: 10, nombre: "Ecuaciones Diferenciales", semestre: 3, tipo: "matematicas" },
+            { id: 11, nombre: "Arquitectura de Computadores", semestre: 3, tipo: "programacion" },
+            { id: 12, nombre: "Probabilidad y Estadistica", semestre: 3, tipo: "matematicas" },
+            { id: 13, nombre: "Base de Datos", semestre: 4, tipo: "programacion" },
+            { id: 14, nombre: "Sistemas Operativos", semestre: 4, tipo: "programacion" },
+            { id: 15, nombre: "Redes de Computadoras", semestre: 4, tipo: "programacion" },
+            { id: 16, nombre: "Metodos Numericos", semestre: 4, tipo: "matematicas" },
+            { id: 17, nombre: "Ingenieria de Software", semestre: 5, tipo: "programacion" },
+            { id: 18, nombre: "Lenguajes de Programacion", semestre: 5, tipo: "programacion" },
+            { id: 19, nombre: "Analisis de Algoritmos", semestre: 5, tipo: "programacion" },
+            { id: 20, nombre: "Desarrollo Web", semestre: 5, tipo: "programacion" },
+            { id: 21, nombre: "Inteligencia Artificial", semestre: 6, tipo: "programacion" },
+            { id: 22, nombre: "Calidad de Software", semestre: 6, tipo: "programacion" },
+            { id: 23, nombre: "Interfaces de Usuario", semestre: 6, tipo: "programacion" },
+            { id: 24, nombre: "Investigacion de Operaciones", semestre: 6, tipo: "matematicas" },
+            { id: 25, nombre: "Gestion de Proyectos", semestre: 7, tipo: "gestion" },
+            { id: 26, nombre: "Seguridad Informatica", semestre: 7, tipo: "programacion" },
+            { id: 27, nombre: "Computacion Grafica", semestre: 7, tipo: "programacion" },
+            { id: 28, nombre: "Desarrollo Movil", semestre: 7, tipo: "programacion" },
+            { id: 29, nombre: "Proyecto de Grado", semestre: 8, tipo: "gestion" },
+            { id: 30, nombre: "Emprendimiento Tecnologico", semestre: 8, tipo: "gestion" },
+            { id: 31, nombre: "Big Data", semestre: 8, tipo: "programacion" },
+            { id: 32, nombre: "Cloud Computing", semestre: 8, tipo: "programacion" }
+        ];
+
+        // Recursos predefinidos
+        function generarRecursosCompletos() {
+            const recursosCompletos = [];
+            let idActual = 1;
+
+            const recursosPorTipo = {
+                programacion: [
+                    { titulo: "Guia completa de programacion", descripcion: "Documento con conceptos fundamentales y ejemplos practicos", tipo: "documento" },
+                    { titulo: "Tutorial en video", descripcion: "Video explicativo paso a paso de los temas principales", tipo: "video" },
+                    { titulo: "Ejercicios resueltos", descripcion: "Coleccion de ejercicios con soluciones detalladas", tipo: "documento" },
+                    { titulo: "Repositorio de codigo", descripcion: "Ejemplos de codigo listos para usar", tipo: "codigo" },
+                    { titulo: "Simulador interactivo", descripcion: "Herramienta para practicar conceptos", tipo: "herramienta" }
+                ],
+                matematicas: [
+                    { titulo: "Formulario completo", descripcion: "Todas las formulas y teoremas necesarios", tipo: "documento" },
+                    { titulo: "Video explicativo", descripcion: "Explicacion detallada de conceptos clave", tipo: "video" },
+                    { titulo: "Ejercicios propuestos", descripcion: "Serie de ejercicios con solucionario", tipo: "documento" },
+                    { titulo: "Calculadora grafica", descripcion: "Herramienta para visualizar funciones", tipo: "herramienta" },
+                    { titulo: "Libro de referencia", descripcion: "Texto completo de la materia", tipo: "libro" }
+                ],
+                ciencias: [
+                    { titulo: "Guia de laboratorio", descripcion: "Procedimientos y normas de laboratorio", tipo: "documento" },
+                    { titulo: "Video de experimentos", descripcion: "Demostraciones practicas de fenomenos", tipo: "video" },
+                    { titulo: "Tabla de constantes", descripcion: "Referencia de constantes fisicas", tipo: "documento" },
+                    { titulo: "Simulador de fisica", descripcion: "Herramienta para simular experimentos", tipo: "herramienta" }
+                ],
+                gestion: [
+                    { titulo: "Plantillas de documentos", descripcion: "Formatos para actas, informes y planes", tipo: "documento" },
+                    { titulo: "Guia de metodologias", descripcion: "Explicacion de metodologias agiles", tipo: "documento" },
+                    { titulo: "Video de casos de exito", descripcion: "Ejemplos reales de gestion de proyectos", tipo: "video" },
+                    { titulo: "Herramienta de planificacion", descripcion: "Software para gestion de proyectos", tipo: "herramienta" }
+                ]
+            };
+
+            catalogoMaterias.forEach(materia => {
+                const recursosBase = recursosPorTipo[materia.tipo] || recursosPorTipo.programacion;
+                for (let i = 0; i < recursosBase.length; i++) {
+                    const base = recursosBase[i];
+                    recursosCompletos.push({
+                        id: idActual++,
+                        titulo: base.titulo,
+                        descripcion: base.descripcion,
+                        tipo: base.tipo,
+                        materiaId: materia.id,
+                        materiaNombre: materia.nombre,
+                        enlace: "#"
+                    });
+                }
+            });
+
+            return recursosCompletos;
+        }
+
+        function obtenerMisGrupos() {
+            const grupos = localStorage.getItem('misGruposSistemas');
+            return grupos ? JSON.parse(grupos) : [];
+        }
+
+        let recursos = [];
+
+        function cargarRecursos() {
+            const recursosGuardados = localStorage.getItem('recursosPorGrupos');
+            if (recursosGuardados) {
+                recursos = JSON.parse(recursosGuardados);
+            } else {
+                recursos = generarRecursosCompletos();
+                localStorage.setItem('recursosPorGrupos', JSON.stringify(recursos));
+            }
+        }
+
+        function guardarRecursos() {
+            localStorage.setItem('recursosPorGrupos', JSON.stringify(recursos));
+        }
+
+        let filtroMateriaId = "todas";
+        let filtroTipo = "todos";
+        let textoBusqueda = "";
+        let misGrupos = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            misGrupos = obtenerMisGrupos();
+            cargarRecursos();
+            actualizarSelectMaterias();
+            mostrarRecursos();
+            configurarFiltros();
+            configurarBuscador();
+        });
+
+        function actualizarSelectMaterias() {
+            const select = document.getElementById('recursoMateriaId');
+            const filtroSelect = document.getElementById('filtroMateria');
+            
+            if (select) {
+                select.innerHTML = '<option value="">Seleccionar materia</option>';
+                misGrupos.forEach(materia => {
+                    select.innerHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
+                });
+            }
+            
+            if (filtroSelect) {
+                filtroSelect.innerHTML = '<option value="todas">Todas las materias</option>';
+                misGrupos.forEach(materia => {
+                    filtroSelect.innerHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
+                });
+            }
+        }
+
+        function mostrarRecursos() {
+            const container = document.getElementById('listaRecursos');
+            
+            if (misGrupos.length === 0) {
+                container.innerHTML = '<div class="sin-recursos"><h3>No estas inscrito en ningun grupo</h3><p>Ve a la seccion Grupos y unite a algunas materias para ver sus recursos</p></div>';
+                return;
+            }
+            
+            const idsGruposInscritos = misGrupos.map(g => g.id);
+            let recursosFiltrados = recursos.filter(r => idsGruposInscritos.includes(r.materiaId));
+            
+            if (filtroMateriaId !== "todas") {
+                recursosFiltrados = recursosFiltrados.filter(r => r.materiaId === parseInt(filtroMateriaId));
+            }
+            
+            if (filtroTipo !== "todos") {
+                recursosFiltrados = recursosFiltrados.filter(r => r.tipo === filtroTipo);
+            }
+            
+            if (textoBusqueda.trim() !== "") {
+                recursosFiltrados = recursosFiltrados.filter(r => 
+                    r.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
+                    r.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase())
+                );
+            }
+            
+            if (recursosFiltrados.length === 0) {
+                container.innerHTML = '<div class="sin-recursos"><h3>No hay recursos disponibles</h3><p>Agrega nuevos recursos o cambia los filtros</p></div>';
+                return;
+            }
+            
+            container.innerHTML = recursosFiltrados.map(recurso => {
+                let tipoTexto = '';
+                switch(recurso.tipo) {
+                    case 'documento': tipoTexto = 'Documento'; break;
+                    case 'video': tipoTexto = 'Video'; break;
+                    case 'enlace': tipoTexto = 'Enlace'; break;
+                    case 'herramienta': tipoTexto = 'Herramienta'; break;
+                    case 'libro': tipoTexto = 'Libro'; break;
+                    case 'examen': tipoTexto = 'Examen'; break;
+                    case 'codigo': tipoTexto = 'Codigo'; break;
+                    default: tipoTexto = recurso.tipo;
+                }
+                
+                const enlaceValido = recurso.enlace && recurso.enlace !== '#' && recurso.enlace !== '';
+                
+                return `
+                    <div class="tarjeta-recurso">
+                        <div class="recurso-tipo ${recurso.tipo}">${tipoTexto}</div>
+                        <div class="recurso-titulo">${recurso.titulo}</div>
+                        <div class="recurso-descripcion">${recurso.descripcion}</div>
+                        <div class="recurso-materia">${recurso.materiaNombre}</div>
+                        ${enlaceValido ? `<a href="${recurso.enlace}" target="_blank" class="recurso-enlace">Abrir Recurso</a>` : '<span style="font-size:12px; color:#6c757d;">Sin enlace disponible</span>'}
+                        <div class="acciones-recurso">
+                            <button class="btn-eliminar-recurso" onclick="eliminarRecurso(${recurso.id})">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function agregarRecurso() {
+            const titulo = document.getElementById('recursoTitulo').value.trim();
+            const descripcion = document.getElementById('recursoDescripcion').value.trim();
+            const materiaId = parseInt(document.getElementById('recursoMateriaId').value);
+            const tipo = document.getElementById('recursoTipo').value;
+            const enlace = document.getElementById('recursoUrl').value.trim();
+            
+            if (!titulo) {
+                mostrarToast('Ingresa un titulo para el recurso');
+                return;
+            }
+            
+            if (!materiaId) {
+                mostrarToast('Selecciona una materia');
+                return;
+            }
+            
+            const materia = misGrupos.find(m => m.id === materiaId);
+            
+            const nuevoRecurso = {
+                id: Date.now(),
+                titulo: titulo,
+                descripcion: descripcion || 'Sin descripcion',
+                tipo: tipo,
+                materiaId: materiaId,
+                materiaNombre: materia ? materia.nombre : 'Materia',
+                enlace: enlace || '#'
+            };
+            
+            recursos.push(nuevoRecurso);
+            guardarRecursos();
+            cerrarModal();
+            
+            document.getElementById('recursoTitulo').value = '';
+            document.getElementById('recursoDescripcion').value = '';
+            document.getElementById('recursoUrl').value = '';
+            
+            mostrarRecursos();
+            mostrarToast('Recurso agregado correctamente');
+        }
+
+        function eliminarRecurso(id) {
+            if (confirm('Eliminar este recurso?')) {
+                recursos = recursos.filter(r => r.id !== id);
+                guardarRecursos();
+                mostrarRecursos();
+                mostrarToast('Recurso eliminado');
+            }
+        }
+
+        function configurarFiltros() {
+            const filtroSelect = document.getElementById('filtroMateria');
+            if (filtroSelect) {
+                filtroSelect.addEventListener('change', (e) => {
+                    filtroMateriaId = e.target.value;
+                    mostrarRecursos();
+                });
+            }
+            
+            document.querySelectorAll('.btn-filtro-tipo').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-filtro-tipo').forEach(b => b.classList.remove('activo'));
+                    btn.classList.add('activo');
+                    filtroTipo = btn.getAttribute('data-tipo');
+                    mostrarRecursos();
+                });
+            });
+        }
+
+        function configurarBuscador() {
+            const buscador = document.getElementById('buscador');
+            if (buscador) {
+                buscador.addEventListener('input', (e) => {
+                    textoBusqueda = e.target.value;
+                    mostrarRecursos();
+                });
+            }
+        }
+
+        function abrirModalAgregar() {
+            if (misGrupos.length === 0) {
+                mostrarToast('Primero unite a algunos grupos en la seccion Grupos');
+                return;
+            }
+            actualizarSelectMaterias();
+            document.getElementById('modalRecurso').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalRecurso').style.display = 'none';
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                cerrarModal();
+            }
+        }
+    </script>
+</body>
+</html>
